@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="https://moztrap.mozilla.org/" />
+<title>addTestCases</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">addTestCases</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/manage/cases/?</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=create a test case</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=id_product</td>
+	<td>label=Firefox OS</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=id_productversion</td>
+	<td>label=v1.3+</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=id_suite</td>
+	<td>label=Music (Tablet)</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_name</td>
+	<td>Music app should have two different layout</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_description</td>
+	<td>As a user, the user should be able to hold the device in two different orientation and the device displays correctly in landscape and portrait</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_add_tags</td>
+	<td>b2g</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=b2g [tag]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_add_tags</td>
+	<td>gaia</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=gaia [tag]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_add_tags</td>
+	<td>music</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=music [tag]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=label.onoffswitch</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_steps-0-instruction</td>
+	<td>Launch music app</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_steps-0-instruction</td>
+	<td>Hold the device in landscape and Launch music app</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_steps-0-expected</td>
+	<td>the app display in landscape view</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=id_steps-1-instruction</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_steps-1-instruction</td>
+	<td>Rotate the device to portrait view</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_steps-1-expected</td>
+	<td>the app display in portrait view</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=id_steps-2-instruction</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_steps-2-instruction</td>
+	<td>Rotate the device to landscape view</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_steps-2-expected</td>
+	<td>the app display in landscape view</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=id_status</td>
+	<td>label=draft</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>name=save</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>
