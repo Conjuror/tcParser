@@ -3,10 +3,9 @@
 from pywlibs.xhtml import Xhtml
 import os
 
-class XhtmlParser():
+class XhtmlParser:
 
     def __init__():
-    
         # settings for pywlib parser
         doc_type = 'XHTML 1.0 Strict'
         minimize = False
@@ -19,14 +18,26 @@ class XhtmlParser():
         if not os.exists(testCaseFolder):
             os.makedirs(testCaseFolder)
 
-    ## File Parser
+### File Parser
+class FileParser:
 
-class FileParser(f):
+    testcases = []
 
-    def __init__():
-        break
+    def __init__(filename):
+        self.testcases = []
+        f = open(filename, 'r')
+        parsing(f)
+        f.close()
 
+    def parsing(f):
+        for line in readlines:
+            
+
+
+
+### Test Case Model
 class TestCase:
+
     product = ""
     productversion = ""
     suite = ""
