@@ -2,6 +2,7 @@
 
 from pywlibs.xhtml import Xhtml
 import os
+import sys
 
 class XhtmlParser:
 
@@ -10,9 +11,13 @@ class XhtmlParser:
     def __init__(self, inputFile, outputFolder=r"./testCases/"):
         caseList = []
         # check if folder exists, otherwise, create one
-        if not os.exists(outputFolder):
+        if outputFolder[0] != '/':
+            outputFolder = '/'.join([os.getcwd(), outputFolder])
+        if not os.path.isdir(outputFolder):
             os.makedirs(outputFolder)
 
+        if inputFile[0] != '/':
+            inputFile = '/'.join([os.getcwd(), inputFile])
         fp = FileParser(inputFile)
 
         # settings for pywlib parser
@@ -22,29 +27,101 @@ class XhtmlParser:
         # generate basic test suite
         X = Xhtml(doc_type, minimize)
 
-        caseGenerator(X, fp.testcases, outputFolder)
+        self.caseGenerator(X, fp.testcases, outputFolder)
+        self.suiteGenerator(X, self.caseList, outputFolder)
 
-    def caseGenerator(self, X, fp.testcases, outputFolder):
-        for case in fp.testcases:
-            fn = str(fp.testcases.index(case)).zfill(6)
-            f = open(fn, 'w')
+    def suiteGenerator(self, X, cases, outputFolder):
+        # generate header
+        head = self.headGenerator(X, "Test Suite")
+
+        table = X.table(attrs=(('id', 'suiteTable'), ('cellpadding', '1'), ('cellspacing', '1'), ('border', '1'), ('class', 'selenium')))
+        tbodyData = table.tbody()
+        tbodyData.tr().td(X.b("Test Suite"))
+        for caseLink in cases:
+            tbodyData.tr().td(X.a(caseLink, href=caseLink))
+
+        body = X.body(table.render())
+
+        html = X.html(head+body, {'xmlns': 'http://www.w3.org/1999/xhtml', 'xml:lang': 'en', 'lang': 'en'})
+
+        # drop Test Suite file
+        print("DROP: " + '/'.join([outputFolder, 'testSuite']))
+        f = open('/'.join([outputFolder, 'testSuite']), 'w')
+        f.writelines('<?xml version="1.0" encoding="UTF-8"?>')
+        f.writelines(X.doctype())
+
+        f.writelines(html)
+        f.close()
+
+    def caseGenerator(self, X, cases, outputFolder):
+        for case in cases:
+            print ("CASE: " + case.__str__())
+            fn = str(cases.index(case)).zfill(6)
+            # drop Test Suite file
+            print("DROP: " + '/'.join([outputFolder, fn]))
+            f = open('/'.join([outputFolder, fn]), 'w')
             f.writelines('<?xml version="1.0" encoding="UTF-8"?>')
             f.writelines(X.doctype())
 
-            head = headGenerator(fn)
-            body = bodyGenerator(case)
+            head = self.headGenerator(X, fn)
+            body = self.bodyGenerator(X, fn, case)
 
+            html = X.html(head+body, {'xmlns': 'http://www.w3.org/1999/xhtml', 'xml:lang': 'en', 'lang': 'en'})
+
+            f.writelines(html)
             f.close()
+            self.caseList.append(fn)
 
-    def headGenerator(self, fn):
+    def headGenerator(self, X, t):
         meta = X.meta('', {'http-equiv': 'Content-Type', 'content': 'text/html', 'charset': 'UTF-8'})
         link = X.link('', {'rel': 'selenium.base', 'href': 'https//moztrap.mozilla.org/'})
-        title = X.title(fn)
+        title = X.title(t)
         head = X.head(meta+link+title, {'profile': 'http://selenium-ide.openqa.org/profiles/test-case'})
         return head
 
-    def bodyGenerator(self, case):
-        
+    def bodyGenerator(self, X, fn, case):
+        table = X.table(attrs=(('cellpadding', '1'), ('cellspacing', '1'), ('border', '1')))
+
+        table.thead().tr().td(fn, attrs=(('rowspan', '1'), ('colspan', 3)))
+        tableData = table.tbody()
+        #go to the base page
+        self.stepRender(tableData.tr(), 'open', '/manage/case/?', '')
+        # click add test case
+        self.stepRender(tableData.tr(), 'clickAndWait', 'link=create a test case', '')
+        # select product
+        self.stepRender(tableData.tr(), 'select', 'id=id_product', 'label='+case.product)
+        # select product version
+        self.stepRender(tableData.tr(), 'select', 'id=id_productversion', 'label='+case.productversion)
+        # select suite
+        self.stepRender(tableData.tr(), 'select', 'id=id_suite', 'label='+case.suite)
+        # enter title
+        self.stepRender(tableData.tr(), 'select', 'id=id_name', 'label='+case.title)
+        # add description
+        self.stepRender(tableData.tr(), 'select', 'id=id_description', 'label='+case.description)
+        # select tags
+        for tag in case.tags:
+            self.stepRender(tableData.tr(), 'select', 'id=id_add_tag', tag)
+            self.stepRender(tableData.tr(), 'click', 'link='+tag+' [tag]')
+        # add steps
+        for step in case.steps:
+            index = str(case.steps.index(step))
+            instruction, expected = step
+            self.stepRender(tableData.tr(), 'click', 'id=id_steps-'+index+'-instruction', '')
+            self.stepRender(tableData.tr(), 'type', 'id=id_steps-'+index+'-instruction', instruction)
+            if expected != "":
+                self.stepRender(tableData.tr(), 'click', 'id=id_steps-'+index+'-expected', '')
+                self.stepRender(tableData.tr(), 'type', 'id=id_steps-'+index+'-expected', expected)
+        # set as draft
+        self.stepRender(tableData.tr(), 'select', 'id=id_status', 'label=draft')
+        # save
+        self.stepRender(tableData.tr(), 'clickAndWait', 'name=save', '')
+
+        return X.body(table)
+
+    def stepRender(self, step, action="", target="", info=""):
+        step.td(action)
+        step.td(target)
+        step.td(info)
 
 
 ### File Parser
@@ -54,11 +131,12 @@ class FileParser:
 
     def __init__(self, filename):
         self.testcases = []
+        print("OPEN: " + filename) ### log
         f = open(filename, 'r')
         self.parsing(f.readlines())
         f.close()
 
-    def parsing(self, f):
+    def parsing(self, lines):
         product = ""
         productversion = ""
         suite = ""
@@ -70,64 +148,62 @@ class FileParser:
         expect =[]
 
         state = ""
-        for line in f.readlines:
+        for line in lines:
             for case in switch(line):
-                if case("PRODUCT"):
+                if case("PRODUCT\n"):
                     state = "PRODUCT"
                     break
-                if case("PRODUCTVERSION"):
+                if case("PRODUCTVERSION\n"):
                     state = "PRODUCTVERSION"
                     break
-                if case("SUITE"):
-                    state = "suite"
+                if case("SUITE\n"):
+                    state = "SUITE"
                     break
-                if case("TITLE"):
+                if case("TITLE\n"):
                     state = "TITLE"
                     break
-                if case("DESCRIPTION"):
+                if case("DESCRIPTION\n"):
                     state = "DESCRIPTION"
                     description = []
                     break
-                if case("TAGS"):
+                if case("TAGS\n"):
                     state = "TAGS"
                     tags = []
                     break
-                if case("STEP"):
+                if case("STEP\n"):
                     if len(step) != 0:
                         steps.append((''.join(step), ''.join(expect)))
                     state = "STEP"
-                    step = ""
-                    expect = ""
+                    step = []
+                    expect = []
                     break
-                if case("EXPECT"):
-                    state = "EXPECT"
+                if case("EXPECTED\n"):
+                    state = "EXPECTED"
                     break
-                if case("DONE"):
+                if case("DONE\n"):
+                    state = ""
                     steps.append((''.join(step), ''.join(expect)))
                     self.testcases.append(TestCase(product, productversion,
-                        suite, title, ''.join(description), tags, steps))
+                        suite, title, '\n'.join(description), tags, steps))
                     break
                 if case():
                     if state == "PRODUCT":
-                        product = line
+                        product = line[:-1]
                     elif state == "PRODUCTVERSION":
-                        productversion = line
+                        productversion = line[:-1]
                     elif state == "SUITE":
-                        suite = line
+                        suite = line[:-1]
                     elif state == "TITLE":
-                        title = line
-                    elif state == "DESCRIPTON":
-                        description.append(line)
+                        title = line[:-1]
+                    elif state == "DESCRIPTION":
+                        description.append(line[:-1])
                     elif state == "TAGS":
                         tags.append(line[:-1]) # drop the new line
                     elif state == "STEP":
                         step.append(line)
-                    elif state == "EXPECT":
+                    elif state == "EXPECTED":
                         expect.append(line)
                     break
-
-
-
 
 
 ### Test Case Model
@@ -149,6 +225,15 @@ class TestCase:
         self.tags = tags
         self.steps = steps
 
+    def __str__(self):
+        return "Product: " + self.product + "\n" + \
+               "Product Version: " + self.productversion + "\n" + \
+               "Suite: " + self.suite + "\n" + \
+               "Title: " + self.title + "\n" + \
+               "Description: " + self.description + "\n" + \
+               "tags: " + ' '.join(self.tags) + "\n" + \
+               "steps: " + str(self.steps)
+
 ### Implement switch like function for state machine :)
 class switch(object):
     def __init__(self, value):
@@ -168,3 +253,11 @@ class switch(object):
         else:
             return False
 
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("There should have two arguments")
+        print("python tcParser.py <input> <output>")
+        print(sys.argv)
+    else:
+        XhtmlParser(sys.argv[1], sys.argv[2])
