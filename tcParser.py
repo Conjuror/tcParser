@@ -85,7 +85,7 @@ class XhtmlParser:
         table.thead().tr().td(fn, attrs=(('rowspan', '1'), ('colspan', 3)))
         tableData = table.tbody()
         #go to the base page
-        self.stepRender(tableData.tr(), 'open', '/manage/case/?', '')
+        self.stepRender(tableData.tr(), 'open', '/manage/cases/', '')
         # click add test case
         self.stepRender(tableData.tr(), 'clickAndWait', 'link=create a test case', '')
         # select product
@@ -95,22 +95,23 @@ class XhtmlParser:
         # select suite
         self.stepRender(tableData.tr(), 'select', 'id=id_suite', 'label='+case.suite)
         # enter title
-        self.stepRender(tableData.tr(), 'select', 'id=id_name', 'label='+case.title)
+        self.stepRender(tableData.tr(), 'sendKeys', 'id=id_name', case.title)
         # add description
-        self.stepRender(tableData.tr(), 'select', 'id=id_description', 'label='+case.description)
+        self.stepRender(tableData.tr(), 'sendKeys', 'id=id_description', case.description)
         # select tags
         for tag in case.tags:
-            self.stepRender(tableData.tr(), 'select', 'id=id_add_tag', tag)
+            self.stepRender(tableData.tr(), 'sendKeys', 'id=id_add_tags', tag)
+            self.stepRender(tableData.tr(), 'waitForElementPresent', 'link='+tag+' [tag]')
             self.stepRender(tableData.tr(), 'click', 'link='+tag+' [tag]')
         # add steps
         for step in case.steps:
             index = str(case.steps.index(step))
             instruction, expected = step
             self.stepRender(tableData.tr(), 'click', 'id=id_steps-'+index+'-instruction', '')
-            self.stepRender(tableData.tr(), 'type', 'id=id_steps-'+index+'-instruction', instruction)
+            self.stepRender(tableData.tr(), 'sendKeys', 'id=id_steps-'+index+'-instruction', instruction)
             if expected != "":
                 self.stepRender(tableData.tr(), 'click', 'id=id_steps-'+index+'-expected', '')
-                self.stepRender(tableData.tr(), 'type', 'id=id_steps-'+index+'-expected', expected)
+                self.stepRender(tableData.tr(), 'sendKeys', 'id=id_steps-'+index+'-expected', expected)
         # set as draft
         self.stepRender(tableData.tr(), 'select', 'id=id_status', 'label=draft')
         # save
