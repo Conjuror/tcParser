@@ -1,0 +1,25 @@
+PRODUCT
+Firefox OS
+PRODUCTVERSION
+1.3+
+SUITE
+Music
+TITLE
+Able to launch Music App
+DESCRIPTION
+hello world!~
+This is a description
+TAGS
+music
+gaia
+b2g
+STEP
+unlock homescreen
+EXPECTED
+homescreen is unlock successfully
+if you know how to do that...
+STEP
+Tap on Music App icon
+EXPECTED
+Music app is launched
+DONE
