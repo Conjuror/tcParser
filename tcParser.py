@@ -9,7 +9,6 @@ class XhtmlParser:
     caseList = []
 
     def __init__(self, inputFile, outputFolder=r"./testCases/"):
-        caseList = []
         # check if folder exists, otherwise, create one
         if outputFolder[0] != '/':
             outputFolder = '/'.join([os.getcwd(), outputFolder])
@@ -162,10 +161,10 @@ class FileParser:
                     break
                 if case("TITLE\n"):
                     state = "TITLE"
+                    description = []
                     break
                 if case("DESCRIPTION\n"):
                     state = "DESCRIPTION"
-                    description = []
                     break
                 if case("TAGS\n"):
                     state = "TAGS"
