@@ -185,6 +185,9 @@ class FileParser:
                     steps.append((''.join(step), ''.join(expect)))
                     self.testcases.append(TestCase(product, productversion,
                         suite, title, '\n'.join(description), tags, steps))
+                    title = ""
+                    description = []
+                    steps = []
                     break
                 if case():
                     if state == "PRODUCT":
