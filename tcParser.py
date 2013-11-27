@@ -161,10 +161,10 @@ class FileParser:
                     break
                 if case("TITLE\n"):
                     state = "TITLE"
-                    description = []
                     break
                 if case("DESCRIPTION\n"):
                     state = "DESCRIPTION"
+                    description = []
                     break
                 if case("TAGS\n"):
                     state = "TAGS"
